@@ -41,6 +41,15 @@
                 </meanbee_pwa>
             </updates>
         </layout>
+        <translate>
+            <modules>
+                <meanbee_pwa>
+                    <files>
+                        <default>Meanbee_PWA.csv</default>
+                    </files>
+                </meanbee_pwa>
+            </modules>
+        </translate>
     </frontend>
     <default>
         <web>
