@@ -15,10 +15,10 @@ const urlBlacklist = <?php echo json_encode($this->getOfflineUrlBlacklist()) ?>;
 function updateStaticCache() {
     return caches.open(version)
         .then(cache => {
-            return cache.addAll([
-                offlinePage
-            ]);
-        });
+        return cache.addAll([
+            offlinePage
+        ]);
+});
 }
 
 /**
@@ -31,9 +31,9 @@ function clearOldCaches() {
         return Promise.all(
             keys
                 .filter(key => key.indexOf(version) !== 0)
-                .map(key => caches.delete(key))
-        );
-    });
+            .map(key => caches.delete(key))
+);
+});
 }
 
 /**
@@ -71,9 +71,9 @@ function isCachableResponse(response) {
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        updateStaticCache()
-            .then(() => self.skipWaiting())
-    );
+    updateStaticCache()
+        .then(() => self.skipWaiting())
+);
 });
 
 // Activate
@@ -81,9 +81,9 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
     event.waitUntil(
-        clearOldCaches()
-            .then(() => self.clients.claim())
-    );
+    clearOldCaches()
+        .then(() => self.clients.claim())
+);
 });
 
 // Fetch
@@ -92,50 +92,49 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     let request = event.request;
 
-    if (request.method !== 'GET') {
-        // Only process GET request, unless offline and expecting a HTML page, then show the offline page instead
-        if (!navigator.onLine && isHtmlRequest(request)) {
-            return event.respondWith(caches.match(offlinePage));
-        }
-        return;
+if (request.method !== 'GET') {
+    // Only process GET request, unless offline and expecting a HTML page, then show the offline page instead
+    if (!navigator.onLine && isHtmlRequest(request)) {
+        return event.respondWith(caches.match(offlinePage));
     }
+    return;
+}
 
-    if (isHtmlRequest(request)) {
-        // For HTML requests, fetch from the network first, otherwise fall back to cache
-        event.respondWith(
-            fetch(request)
-                .then(response => {
-                    if (isCachableResponse(response) && !isBlacklisted(response.url)) {
-                        let copy = response.clone();
-                        caches.open(version).then(cache => cache.put(request, copy));
-                    }
-                    return response;
-                })
-                .catch(() => {
-                    return caches.match(request)
-                        .then(response => {
-                            if (!response && request.mode == 'navigate') {
-                                return caches.match(offlinePage);
-                            }
-                            return response;
-                        });
-                })
-        );
-    } else {
-        // For asset requests, get from cache, otherwise fetch from the network
-        event.respondWith(
-            caches.match(request)
-                .then(response => {
-                    return response || fetch(request)
-                            .then(response => {
-                                if (isCachableResponse(response)) {
-                                    let copy = response.clone();
-                                    caches.open(version).then(cache => cache.put(request, copy));
-                                }
-                                return response;
-                            })
-                })
-        );
+if (isHtmlRequest(request)) {
+    // For HTML requests, fetch from the network first, otherwise fall back to cache
+    event.respondWith(
+        fetch(request)
+            .then(response => {
+            if (isCachableResponse(response) && !isBlacklisted(response.url)) {
+        let copy = response.clone();
+        caches.open(version).then(cache => cache.put(request, copy));
     }
+    return response;
+})
+.catch(() => {
+        return caches.match(request)
+            .then(response => {
+            if (!response && request.mode == 'navigate') {
+        return caches.match(offlinePage);
+    }
+    return response;
 });
-
+})
+);
+} else {
+    // For asset requests, get from cache, otherwise fetch from the network
+    event.respondWith(
+        caches.match(request)
+            .then(response => {
+            return response || fetch(request)
+                .then(response => {
+                if (isCachableResponse(response)) {
+        let copy = response.clone();
+        caches.open(version).then(cache => cache.put(request, copy));
+    }
+    return response;
+})
+})
+);
+}
+});
