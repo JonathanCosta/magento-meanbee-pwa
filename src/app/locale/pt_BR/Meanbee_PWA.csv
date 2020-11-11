@@ -1,0 +1,5 @@
+"Progressive Web App Settings","Configurações de PWA"
+"Enable Progressive Web App Features","Ativar Recursos PWA"
+"Offline Notification Page","Página Offline de Notificação"
+"Offline URL Blacklist","Blacklist de URLs Offline"
+"List of URL paths, one per line. Any pages matching one of the entries here will not be cached and will be unavailable offline.","Lista de caminhos de URL, um por linha. Qualquer página correspondente aqui não será armazenada em cache, e estará indisponível offline."
